@@ -12,6 +12,8 @@ pid
 /*.js.map
 /*.d.ts
 /*.d.ts.map
+!cli.js
+!pinger.js
 
 # Code coverage artifacts
 /coverage
