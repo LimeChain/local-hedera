@@ -1,0 +1,55 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+      release:
+        description: 'Release title'
+        required: true
+      versionType:
+        description: 'The version type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  ManualPublish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - name: 'Patch version'
+        if: "contains(github.event.inputs.versionType, 'patch')"
+        run: npm version patch --no-git-tag-version
+      - name: 'Minor version'
+        if: "contains(github.event.inputs.versionType, 'minor')"
+        run: npm version minor --no-git-tag-version
+      - name: 'Major version'
+        if: "contains(github.event.inputs.versionType, 'major')"
+        run: npm version major --no-git-tag-version
+      - uses: EndBug/add-and-commit@v8.0.2
+        with:
+          commit: --signoff
+          default_author: user_info
+          message: 'Updating version'
+          pathspec_error_handling: ignore
+      - uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.inputs.tag }}
+      - run: npm publish
