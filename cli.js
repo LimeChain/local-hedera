@@ -9,13 +9,16 @@ const [, , ...commands] = process.argv;
 async function init() {
   if (!commands.length) {
     console.log(`
-Local Hedera Plugin - Runs consensus and mirror nodes on localhost
+Local Hedera Plugin - Runs consensus and mirror nodes on localhost:
+- consensus node url - 127.0.0.1:50211
+- node id - 0.0.3
+- mirror node url - http://127.0.0.1:5551
 
 Available commands:
     start - Starts the local hedera network.
     stop - Stops the local hedera network.
     reset - Delete all the existing data and starts the network.
-    generate-accounts <n> - Generates N accounts, default 5.
+    generate-accounts <n> - Generates N accounts, default 10.
   `);
 
     process.exit();
@@ -23,16 +26,16 @@ Available commands:
 
   switch (commands[0]) {
     case 'start': {
-      start();
+      await start();
       break;
     }
     case 'stop': {
-      stop();
+      await stop();
       break;
     }
-    case 'reset': {
-      reset();
-      await generateAccounts();
+    case 'restart': {
+      await stop();
+      await start();
       break;
     }
     case 'generate-accounts': {
@@ -40,31 +43,24 @@ Available commands:
       break;
     }
     default: {
-      console.log(`Undefined command. Check available commands at "npx local-hedera"`);
+      console.log(`Undefined command. Check available commands at "npx hedera"`);
     }
   }
 
-  function start() {
-    runPinger();
+  async function start() {
     shell.cd(__dirname + '/hedera-network-e2e');
     shell.exec('docker-compose up -d');
+    runPinger();
+    await generateAccounts(10);
     shell.cd('../');
   }
 
-  function stop() {
-    stopPinger();
-    shell.cd(__dirname + '/hedera-network-e2e');
-    shell.exec('docker-compose stop');
-    shell.cd('../');
-  }
-
-  function reset() {
+  async function stop() {
     stopPinger();
     shell.cd(__dirname + '/hedera-network-e2e');
     shell.exec('docker-compose down -v');
     shell.exec(`git clean -xfd`);
-    shell.exec(`docker-compose up --build -d`);
-    runPinger();
+    shell.exec('sed -i \'s/JAVA_OPTS/#JAVA_OPTS/\' .env');
     shell.cd('../');
   }
 
@@ -99,11 +95,11 @@ Available commands:
       const randomWallet = hethers.Wallet.createRandom();
       const tx = await new HederaSDK.AccountCreateTransaction()
           .setKey(HederaSDK.PublicKey.fromString(randomWallet._signingKey().compressedPublicKey))
-          .setInitialBalance(HederaSDK.Hbar.fromTinybars(100000000000))
+          .setInitialBalance(HederaSDK.Hbar.fromTinybars(10000000000000))
           .execute(client);
       const getReceipt = await tx.getReceipt(client);
 
-      accountsString += `${getReceipt.accountId.toString()} - ${randomWallet._signingKey().privateKey}\n`;
+      accountsString += `${getReceipt.accountId.toString()} - ${randomWallet._signingKey().privateKey} - ${HederaSDK.Hbar.fromTinybars(10000000000000)}\n`;
     }
 
     console.log(`${accountsString}Total: ${num}`);
