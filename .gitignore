@@ -14,6 +14,7 @@ pid
 /*.d.ts.map
 !cli.js
 !pinger.js
+!postinstall.js
 
 # Code coverage artifacts
 /coverage

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-const shell = require('shelljs');
-const hethers = require('@hashgraph/hethers');
-const HederaSDK = require('@hashgraph/sdk');
-const childProcess = require('child_process');
-const fs = require('fs');
 const [, , ...commands] = process.argv;
+const shell = require('shelljs');
+const CliHelper = require('./src/cliHelper');
+const HederaUtils = require('./src/hederaUtils');
+const PingerHelper = require('./src/pingerHelper');
 
-async function init() {
+(async function () {
   if (!commands.length) {
     console.log(`
 Local Hedera Plugin - Runs consensus and mirror nodes on localhost:
@@ -16,8 +15,8 @@ Local Hedera Plugin - Runs consensus and mirror nodes on localhost:
 
 Available commands:
     start - Starts the local hedera network.
-    stop - Stops the local hedera network.
-    reset - Delete all the existing data and starts the network.
+    stop - Stops the local hedera network and delete all the existing data.
+    restart - Restart the local hedera network.
     generate-accounts <n> - Generates N accounts, default 10.
   `);
 
@@ -26,37 +25,38 @@ Available commands:
 
   switch (commands[0]) {
     case 'start': {
-      await start();
+      await start(commands);
       break;
     }
     case 'stop': {
-      await stop();
+      await stop(commands);
       break;
     }
     case 'restart': {
-      await stop();
-      await start();
+      await stop(commands);
+      await start(commands);
       break;
     }
     case 'generate-accounts': {
-      await generateAccounts(commands[1] || 10);
+      await HederaUtils.generateAccounts(commands[1] || 10);
       break;
     }
     default: {
-      console.log(`Undefined command. Check available commands at "npx hedera"`);
+      console.log(`Undefined command. Check available commands at "npx local-hedera"`);
     }
   }
 
-  async function start() {
+  async function start(commands) {
     shell.cd(__dirname + '/hedera-network-e2e');
     shell.exec('docker-compose up -d');
-    runPinger();
-    await generateAccounts(10);
     shell.cd('../');
+    await CliHelper.waitForFiringUp(5600);
+    PingerHelper.run();
+    await HederaUtils.generateAccounts(CliHelper.getArgValue(commands, 'accounts', 10), true);
   }
 
   async function stop() {
-    stopPinger();
+    PingerHelper.stop();
     shell.cd(__dirname + '/hedera-network-e2e');
     shell.exec('docker-compose down -v');
     shell.exec(`git clean -xfd`);
@@ -64,48 +64,5 @@ Available commands:
     shell.cd('../');
   }
 
-  function runPinger() {
-    stopPinger();
-    const pingerProcess = childProcess.spawn('node', [__dirname + '/pinger.js'], {detached: true});
-
-    fs.writeFileSync(__dirname + '/pid', pingerProcess.pid + '');
-  }
-
-  function stopPinger() {
-    const pidFilePath = __dirname + '/pid';
-    if (fs.existsSync(pidFilePath)) {
-      try {
-        process.kill(fs.readFileSync(pidFilePath));
-        fs.unlinkSync(pidFilePath);
-      } catch (e) {
-        // the process doesn't exist
-      }
-    }
-  }
-
-  async function generateAccounts(num = 10) {
-    const client = HederaSDK.Client
-        .forNetwork({
-          '127.0.0.1:50211': '0.0.3'
-        })
-        .setOperator('0.0.2', '302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137');
-
-    let accountsString = '';
-    for (let i = 0; i < num; i++) {
-      const randomWallet = hethers.Wallet.createRandom();
-      const tx = await new HederaSDK.AccountCreateTransaction()
-          .setKey(HederaSDK.PublicKey.fromString(randomWallet._signingKey().compressedPublicKey))
-          .setInitialBalance(HederaSDK.Hbar.fromTinybars(10000000000000))
-          .execute(client);
-      const getReceipt = await tx.getReceipt(client);
-
-      accountsString += `${getReceipt.accountId.toString()} - ${randomWallet._signingKey().privateKey} - ${HederaSDK.Hbar.fromTinybars(10000000000000)}\n`;
-    }
-
-    console.log(`${accountsString}Total: ${num}`);
-  }
-
   process.exit();
-}
-
-init();
+})();

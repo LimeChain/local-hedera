@@ -13,7 +13,7 @@
     "local-hedera"
   ],
   "scripts": {
-    "postinstall": "git clone git@github.com:hashgraph/hedera-network-e2e.git && cd hedera-network-e2e && git reset --hard HEAD && sed -i 's/JAVA_OPTS/#JAVA_OPTS/' .env && docker-compose build"
+    "postinstall": "node postinstall.js"
   },
   "bin": {
     "local-hedera": "./cli.js"
