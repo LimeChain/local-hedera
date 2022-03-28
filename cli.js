@@ -47,19 +47,25 @@ Available commands:
   }
 
   async function start(commands) {
+    console.log('Starting the docker images...');
     shell.cd(__dirname + '/hedera-network-e2e');
-    shell.exec('docker-compose up -d');
+    shell.exec('docker-compose up -d 2>/dev/null');
     shell.cd('../');
     await CliHelper.waitForFiringUp(5600);
+    console.log('Starting the pinger...');
     PingerHelper.run();
+    console.log('Generating accounts...');
     await HederaUtils.generateAccounts(CliHelper.getArgValue(commands, 'accounts', 10), true);
   }
 
   async function stop() {
+    console.log('Stopping the pinger...');
     PingerHelper.stop();
     shell.cd(__dirname + '/hedera-network-e2e');
-    shell.exec('docker-compose down -v');
-    shell.exec(`git clean -xfd`);
+    console.log('Stopping the docker images...');
+    shell.exec('docker-compose down -v 2>/dev/null');
+    console.log('Cleaning the volumes and temp files...')
+    shell.exec(`git clean -xfd 2>/dev/null`);
     shell.exec('sed -i \'s/JAVA_OPTS/#JAVA_OPTS/\' .env');
     shell.cd('../');
   }
