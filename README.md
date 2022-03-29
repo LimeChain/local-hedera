@@ -149,3 +149,7 @@ $ npx local-hedera generate-accounts 2
 ```
 
 No available options
+
+## License
+
+MIT License
