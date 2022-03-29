@@ -1,13 +1,11 @@
 {
-  "name": "@limechain/local-hedera",
-  "version": "1.0.0",
+  "name": "local-hedera",
+  "version": "0.0.1",
   "description": "Developer tooling for running Local Hedera Network (Consensus + Mirror Nodes).",
   "homepage": "https://github.com/LimeChain/local-hedera",
   "repository": "github:LimeChain/local-hedera",
   "author": "LimeChain",
   "license": "MIT",
-  "main": "internal/index.js",
-  "types": "internal/index.d.ts",
   "keywords": [
     "hedera",
     "local-hedera"
