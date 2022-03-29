@@ -13,7 +13,7 @@ Exposed urls are:
 ```bash
 Consensus Node Url - 127.0.0.1:50211
 Node Id - 0.0.3
-Mirror Node Url - http://127.0.0.1:55
+Mirror Node Url - http://127.0.0.1:5551
 ```
 
 ## Requirements
@@ -35,7 +35,7 @@ npm install --save-dev 'local-hedera'
 
 ## Using local-hedera
 
-```bash
+```
 $ npx local-hedera
 
 Local Hedera Package - Runs consensus and mirror nodes on localhost:
