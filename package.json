@@ -1,0 +1,25 @@
+{
+  "name": "local-hedera",
+  "version": "0.0.1",
+  "description": "Developer tooling for running Local Hedera Network (Consensus + Mirror Nodes).",
+  "homepage": "https://github.com/LimeChain/local-hedera",
+  "repository": "github:LimeChain/local-hedera",
+  "author": "LimeChain",
+  "license": "MIT",
+  "keywords": [
+    "hedera",
+    "local-hedera"
+  ],
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "bin": {
+    "local-hedera": "./cli.js"
+  },
+  "dependencies": {
+    "@hashgraph/hethers": "^1.0.3",
+    "@hashgraph/sdk": "2.7.0-beta.4",
+    "rimraf": "^3.0.2",
+    "shelljs": "^0.8.5"
+  }
+}
