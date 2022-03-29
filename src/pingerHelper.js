@@ -1,16 +1,17 @@
 const fs = require('fs');
 const childProcess = require('child_process');
+const path = require('path');
 
 module.exports = class PingerHelper {
   static run() {
     this.stop();
-    const pingerProcess = childProcess.spawn('node', ['../pinger.js'], {detached: true});
+    const pingerProcess = childProcess.spawn('node', [path.resolve(__dirname, 'pinger.js')], {detached: true});
 
-    fs.writeFileSync('../pid', pingerProcess.pid + '');
+    fs.writeFileSync(path.resolve(__dirname, '../pid'), pingerProcess.pid + '');
   }
 
   static stop() {
-    const pidFilePath = '../pid';
+    const pidFilePath = path.resolve(__dirname, '../pid');
     if (fs.existsSync(pidFilePath)) {
       try {
         process.kill(fs.readFileSync(pidFilePath));
