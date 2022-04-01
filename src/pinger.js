@@ -12,6 +12,6 @@ const HederaSDK = require('@hashgraph/sdk');
         .addHbarTransfer('0.0.2', new HederaSDK.Hbar(1).negated())
         .addHbarTransfer('0.0.1000', new HederaSDK.Hbar(1));
     await transfer.execute(client);
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 300));
   }
 })();

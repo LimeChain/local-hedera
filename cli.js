@@ -48,20 +48,20 @@ Available commands:
 
   async function start(commands) {
     console.log('Starting the docker images...');
-    shell.cd(__dirname + '/hedera-network-e2e');
+    shell.cd(__dirname + '/hedera-local-node');
     shell.exec('docker-compose up -d 2>/dev/null');
     shell.cd('../');
     await CliHelper.waitForFiringUp(5600);
-    console.log('Starting the pinger...');
+    console.log('Starting the network...');
     PingerHelper.run();
     console.log('Generating accounts...');
     await HederaUtils.generateAccounts(CliHelper.getArgValue(commands, 'accounts', 10), true);
   }
 
   async function stop() {
-    console.log('Stopping the pinger...');
+    console.log('Stopping the network...');
     PingerHelper.stop();
-    shell.cd(__dirname + '/hedera-network-e2e');
+    shell.cd(__dirname + '/hedera-local-node');
     console.log('Stopping the docker images...');
     shell.exec('docker-compose down -v 2>/dev/null');
     console.log('Cleaning the volumes and temp files...')

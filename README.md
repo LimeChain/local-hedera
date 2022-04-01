@@ -73,7 +73,7 @@ Generating accounts...
 ---------- Total: 10
 ```
 
-- --acounts - Default is 10. Specify the number of accounts to generate at startup. The first 10 are with predefined
+- --accounts - Default is 10. Specify the number of accounts to generate at startup. The first 10 are with predefined
   private keys, and the next ones are with random generated private keys.
 
 ```bash
@@ -126,7 +126,7 @@ Generating accounts...
 ---------- Total: 10
 ```
 
-- --acounts - Default is 10. Specify the number of accounts to generate at startup. The first 10 are with predefined
+- --accounts - Default is 10. Specify the number of accounts to generate at startup. The first 10 are with predefined
   private keys, and the next ones are with random generated private keys.
 
 ```bash
