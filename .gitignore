@@ -1,7 +1,7 @@
 # Node modules
 /node_modules
 pid
-/hedera-network-e2e
+/hedera-local-node
 
 # Compilation output
 /build-test/
