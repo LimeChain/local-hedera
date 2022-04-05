@@ -1,6 +1,6 @@
-[![npm](https://img.shields.io/npm/v/local-hedera.svg)](https://www.npmjs.com/package/local-hedera)
+[![npm](https://img.shields.io/npm/v/hedera-local.svg)](https://www.npmjs.com/package/hedera-local)
 
-# local-hedera
+# hedera-local
 
 Developer tooling for running Local Hedera Network (Consensus + Mirror Nodes)
 
@@ -26,17 +26,19 @@ Mirror Node Url - http://127.0.0.1:5551
 
 - Ensure to use Docker Compose version 1.29.2 on macOS, due to known bug in Docker Compose V2.
 - Ensure the `gRPC FUSE for file sharing` and `Use Docker Compose V2` settings are disabled in the docker settings.
+  
+![docker-compose-settings.png](docker-compose-settings.png)
 
 ## Installation
 
 ```bash
-npm install --save-dev 'local-hedera'
+npm install --save-dev 'hedera-local'
 ```
 
-## Using local-hedera
+## Using hedera-local
 
 ```
-$ npx local-hedera
+$ npx hedera-local
 
 Local Hedera Package - Runs consensus and mirror nodes on localhost:
 - consensus node url - 127.0.0.1:50211
@@ -52,10 +54,10 @@ Available commands:
 
 ### Commands
 
-#### `npx local-hedera start <options>`
+#### `npx hedera-local start <options>`
 
 ```bash
-$ npx local-hedera start
+$ npx hedera-local start
 Starting the docker images...
 Starting the pinger...
 Generating accounts...
@@ -77,7 +79,7 @@ Generating accounts...
   private keys, and the next ones are with random generated private keys.
 
 ```bash
-$ npx local-hedera start --accounts=2
+$ npx hedera-local start --accounts=2
 Starting the docker images...
 Starting the pinger...
 Generating accounts...
@@ -89,10 +91,10 @@ Generating accounts...
 
 ---
 
-#### `npx local-hedera stop`
+#### `npx hedera-local stop`
 
 ```bash
-$ npx local-hedera stop
+$ npx hedera-local stop
 Stopping the pinger...
 Stopping the docker images...
 Cleaning the volumes and temp files...
@@ -102,10 +104,10 @@ No available options
 
 ---
 
-#### `npx local-hedera restart <options>`
+#### `npx hedera-local restart <options>`
 
 ```bash
-$ npx local-hedera restart
+$ npx hedera-local restart
 Stopping the pinger...
 Stopping the docker images...
 Cleaning the volumes and temp files...
@@ -130,7 +132,7 @@ Generating accounts...
   private keys, and the next ones are with random generated private keys.
 
 ```bash
-$ npx local-hedera restart --accounts=2
+$ npx hedera-local restart --accounts=2
 Stopping the pinger...
 Stopping the docker images...
 Cleaning the volumes and temp files...
@@ -145,10 +147,10 @@ Generating accounts...
 
 ---
 
-#### `npx local-hedera generate-accounts <num>`
+#### `npx hedera-local generate-accounts <num>`
 
 ```bash
-$ npx local-hedera generate-accounts 2
+$ npx hedera-local generate-accounts 2
 ---------- Accounts list:
 0.0.1003 - 0xfbb758df3a6aab2e0eac205986eebd53b72fa56f659ed9b733772797834b0099 - 100000 ℏ
 0.0.1004 - 0x623a5076487903920f3037d5b733d7cf60523cfb726c9aece51df30a0235854e - 100000 ℏ
@@ -200,6 +202,37 @@ hedera: {
   }
 }
 ```
+
+---
+
+## How to run a local node with a mirror node and consensus node without the cli wrapper
+
+### Setup
+
+1. Run `docker-compose up -d` from the console.
+2. After the run do `docker-compose down -v; git clean -xfd; git reset --hard` to stop and remove the containers, volumes and clean generated files.
+
+### Folder set up
+1. `compose-network` folder has the static files needed for starting Local network.
+2. `network-logs` folder will be created at runtime and will have all the log files generated after starting local node.
+
+### Steps to change the memory limits and properties
+The following environment variables can be changed in the `.env` file for various memory limits 
+1. Platform
+   - PLATFORM_JAVA_HEAP_MIN
+   - PLATFORM_JAVA_HEAP_MAX
+2. Consensus node
+   - NETWORK_NODE_MEM_LIMIT
+3. Mirror node
+   - MIRROR_GRPC_MEM_LIMIT - memory limit for mirror node gRPC
+   - MIRROR_IMPORTER_MEM_LIMIT - memory limit for mirror node importer
+   - MIRROR_REST_MEM_LIMIT - memory limit for mirror node rest api 
+   - MIRROR_WEB3_MEM_LIMIT - memory limit for mirror node web3
+4. To change `application.properties`, `api-permission.properties` or `bootstrap.properties` properties, update the `APPLICATION_CONFIG_PATH` to the location of updated config folder in `.env` file
+
+**IMPORTANT :** Ensure to do `docker-compose down -v; git clean -xfd; git reset --hard` and then `docker-compose up -d` for the new changes to take any effect.
+
+&#10008; The keys under `network-node` (`hedera.key`, `hedera.crt` and the `keys` folder) are only intended to be used for testing with this docker based local network. These keys should not be used with any other networks. 
 
 ## License
 
