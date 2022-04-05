@@ -42,15 +42,14 @@ Available commands:
       break;
     }
     default: {
-      console.log(`Undefined command. Check available commands at "npx local-hedera"`);
+      console.log(`Undefined command. Check available commands at "npx hedera-local"`);
     }
   }
 
   async function start(commands) {
-    console.log('Starting the docker images...');
-    shell.cd(__dirname + '/hedera-local-node');
+    console.log('Starting the docker containers...');
+    shell.cd(__dirname);
     shell.exec('docker-compose up -d 2>/dev/null');
-    shell.cd('../');
     await CliHelper.waitForFiringUp(5600);
     console.log('Starting the network...');
     PingerHelper.run();
@@ -61,13 +60,13 @@ Available commands:
   async function stop() {
     console.log('Stopping the network...');
     PingerHelper.stop();
-    shell.cd(__dirname + '/hedera-local-node');
-    console.log('Stopping the docker images...');
+    shell.cd(__dirname);
+    console.log('Stopping the docker containers...');
     shell.exec('docker-compose down -v 2>/dev/null');
-    console.log('Cleaning the volumes and temp files...')
-    shell.exec(`git clean -xfd 2>/dev/null`);
-    shell.exec('sed -i \'s/JAVA_OPTS/#JAVA_OPTS/\' .env');
-    shell.cd('../');
+    console.log('Cleaning the volumes and temp files...');
+    // shell.exec(`git clean -xfd 2>/dev/null`);
+    shell.exec('sed -i \'s/^.*PLATFORM_JAVA_OPTS/PLATFORM_JAVA_OPTS/\' .env');
+    shell.exec('sed -i \'s/PLATFORM_JAVA_OPTS/#PLATFORM_JAVA_OPTS/\' .env');
   }
 
   process.exit();
