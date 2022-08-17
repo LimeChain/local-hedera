@@ -1,3 +1,5 @@
+**Deprecated!** This package has been deprecated, please use [this one](https://github.com/hashgraph/hedera-local-node) instead
+
 [![npm](https://img.shields.io/npm/v/hedera-local.svg)](https://www.npmjs.com/package/hedera-local)
 
 # hedera-local
